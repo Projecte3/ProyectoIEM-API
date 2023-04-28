@@ -5,7 +5,7 @@ const post = require('./post.js')
 var mysql = require('mysql2');
 
 // Wait 'ms' milliseconds
-function wait (ms) {
+function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
@@ -20,13 +20,13 @@ app.use(express.static('public'))
 
 // Activate HTTP server
 const httpServer = app.listen(port, appListen)
-function appListen () {
+function appListen() {
   console.log(`Listening for HTTP queries on: http://localhost:${port}`)
 }
 
 // set_record endpoint
-app.post('/set_record',set_record)
-async function set_record(req, res){
+app.post('/set_record', set_record)
+async function set_record(req, res) {
   let receivedPOST = await post.getPostObject(req)
   let result = { status: "KO", result: "Unkown type" }
 
@@ -40,8 +40,8 @@ async function set_record(req, res){
 
     var puntuacio = 0; // TODO: Algoritmo puntuacion
 
-    await queryDatabase(`insert into ranking(nom_jugador, cicle, puntuacio, temps_emprat,  items_correctes, items_incorrectes) values `+
-    `("${nom_jugador}","${cicle}",${puntuacio},0,${items_correctes},${items_incorrectes})`);
+    await queryDatabase(`insert into ranking(nom_jugador, cicle, puntuacio, temps_emprat,  items_correctes, items_incorrectes) values ` +
+      `("${nom_jugador}","${cicle}",${puntuacio},0,${items_correctes},${items_incorrectes})`);
 
     result = {
       status: "OK",
@@ -54,25 +54,65 @@ async function set_record(req, res){
 }
 
 // get_ranking endpoint
-app.post('/get_ranking',get_ranking)
-async function get_ranking(req, res){
+app.post('/get_ranking', get_ranking)
+async function get_ranking(req, res) {
   let receivedPOST = await post.getPostObject(req)
   let result = { status: "KO", result: "Unkown type" }
 
   if (receivedPOST) {
-   var element_inici = receivedPOST.element_inici;
-   var nombre_elements = receivedPOST.nombre_elements;
+    var element_inici = receivedPOST.element_inici;
+    var nombre_elements = receivedPOST.nombre_elements;
 
-   if (nombre_elements > 20) {
-    nombre_elements = 20;
-   }
+    if (nombre_elements > 20) {
+      nombre_elements = 20;
+    }
 
-   var ranking = await queryDatabase(`select * from ranking order by puntuacio desc limit ${element_inici - 1},${nombre_elements};`)
+    var ranking = await queryDatabase(`select * from ranking order by puntuacio desc limit ${element_inici - 1},${nombre_elements};`)
 
-   result = {
-    status: "OK",
-    result: ranking
-   }
+    result = {
+      status: "OK",
+      result: ranking
+    }
+  }
+
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify(result))
+}
+
+// get_ranking endpoint
+app.post('/get_families', get_families)
+async function get_families(req, res) {
+  let receivedPOST = await post.getPostObject(req)
+  let result = { status: "KO", result: "Unkown type" }
+
+  if (receivedPOST) {
+
+    var families_profesionals = await queryDatabase(`select * from families_profesionals`)
+
+    result = {
+      status: "OK",
+      result: families_profesionals
+    }
+  }
+
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify(result))
+}
+
+// get_ranking endpoint
+app.post('/get_cicles', get_cicles)
+async function get_cicles(req, res) {
+  let receivedPOST = await post.getPostObject(req)
+  let result = { status: "KO", result: "Unkown type" }
+
+  if (receivedPOST) {
+    var familiaId = receivedPOST.familiaId;
+    var cicles = await queryDatabase(`select * from cicles where familia_profesional = ${familiaId};`)
+
+    result = {
+      status: "OK",
+      result: cicles
+    }
   }
 
   res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -80,22 +120,22 @@ async function get_ranking(req, res){
 }
 
 // Perform a query to the database
-function queryDatabase (query) {
+function queryDatabase(query) {
 
   return new Promise((resolve, reject) => {
     var connection = mysql.createConnection({
-      host: process.env.MYSQLHOST || "localhost",
-      port: process.env.MYSQLPORT || 3306,
-      user: process.env.MYSQLUSER || "root",
-      password: process.env.MYSQLPASSWORD || "root",
-      database: process.env.MYSQLDATABASE || "proyectoiem"
+      host: "containers-us-west-67.railway.app" || "localhost",
+      port: 5891 || 3306,
+      user: "root" || "root",
+      password: "k5oRpIJBMJvSEZjFcvDO" || "root",
+      database: "railway" || "proyectoiem"
     });
 
-    connection.query(query, (error, results) => { 
+    connection.query(query, (error, results) => {
       if (error) reject(error);
       resolve(results)
     });
-     
+
     connection.end();
   })
 }
