@@ -106,8 +106,10 @@ async function get_cicles(req, res) {
   let result = { status: "KO", result: "Unkown type" }
 
   if (receivedPOST) {
-    var familiaId = receivedPOST.familiaId;
-    var cicles = await queryDatabase(`select * from cicles where familia_profesional = ${familiaId};`)
+    var familiaNom = receivedPOST.familiaNom;
+    console.log(familiaNom)
+    var familiaId = await queryDatabase(`select id from families_profesionals where nom = '${familiaNom}';`)
+    var cicles = await queryDatabase(`select * from cicles where familia_profesional = ${familiaId[0].id};`)
 
     result = {
       status: "OK",
