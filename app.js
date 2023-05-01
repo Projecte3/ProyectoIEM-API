@@ -36,12 +36,12 @@ async function set_record(req, res) {
     var items_correctes = receivedPOST.items_correctes;
     var items_incorrectes = receivedPOST.items_incorrectes;
     // TODO: Mirar de enviar el tiempo que ha tardado
+    var temps_emprat = 30;
 
-
-    var puntuacio = 0; // TODO: Algoritmo puntuacion
+    var puntuacio = ((items_correctes * 10) - (items_incorrectes * 5) / temps_emprat);
 
     await queryDatabase(`insert into ranking(nom_jugador, cicle, puntuacio, temps_emprat,  items_correctes, items_incorrectes) values ` +
-      `("${nom_jugador}","${cicle}",${puntuacio},0,${items_correctes},${items_incorrectes})`);
+      `("${nom_jugador}","${cicle}",${puntuacio},${temps_emprat},${items_correctes},${items_incorrectes})`);
 
     result = {
       status: "OK",
