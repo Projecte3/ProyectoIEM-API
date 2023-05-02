@@ -36,12 +36,16 @@ async function set_record(req, res) {
     var items_correctes = receivedPOST.items_correctes;
     var items_incorrectes = receivedPOST.items_incorrectes;
     // TODO: Mirar de enviar el tiempo que ha tardado
+    var temps_emprat = 30;
 
-
-    var puntuacio = 0; // TODO: Algoritmo puntuacion
+    var puntuacio = ((items_correctes * 100) - (items_incorrectes * 50) / temps_emprat);
+    
+    if (puntuacio < 0) {
+      puntuacio = 0;
+    }
 
     await queryDatabase(`insert into ranking(nom_jugador, cicle, puntuacio, temps_emprat,  items_correctes, items_incorrectes) values ` +
-      `("${nom_jugador}","${cicle}",${puntuacio},0,${items_correctes},${items_incorrectes})`);
+      `("${nom_jugador}","${cicle}",${puntuacio},${temps_emprat},${items_correctes},${items_incorrectes})`);
 
     result = {
       status: "OK",
@@ -114,6 +118,28 @@ async function get_cicles(req, res) {
     result = {
       status: "OK",
       result: cicles
+    }
+  }
+
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify(result))
+}
+
+// get_ranking endpoint
+app.post('/get_totems', get_totems)
+async function get_totems(req, res) {
+  let receivedPOST = await post.getPostObject(req)
+  let result = { status: "KO", result: "Unkown type" }
+
+  if (receivedPOST) {
+    var cicleNom = receivedPOST.cicleNom;
+    
+    var cicleID = await queryDatabase(`select id from cicles where nom = '${cicleNom}';`)
+    var totems = await queryDatabase(`select * from ocupacions where cicle = ${cicleID[0].id};`)
+
+    result = {
+      status: "OK",
+      result: totems
     }
   }
 
