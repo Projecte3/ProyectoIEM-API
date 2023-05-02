@@ -126,11 +126,11 @@ function queryDatabase(query) {
 
   return new Promise((resolve, reject) => {
     var connection = mysql.createConnection({
-      host: "containers-us-west-67.railway.app" || "localhost",
-      port: 5891 || 3306,
-      user: "root" || "root",
-      password: "k5oRpIJBMJvSEZjFcvDO" || "root",
-      database: "railway" || "proyectoiem"
+      host: process.env.MYSQLHOST || "localhost",
+      port: process.env.MYSQLPORT || 3306,
+      user: process.env.MYSQLUSER || "root",
+      password: process.env.MYSQLPASSWORD || "root",
+      database: process.env.MYSQLDATABASE || "proyectoiem"
     });
 
     connection.query(query, (error, results) => {

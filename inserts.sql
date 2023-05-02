@@ -22,3 +22,11 @@ insert into cicles(nom, familia_profesional) values
 ("Mecatrònica industrial",4),
 ("Programació de la producció en fabricació mecànica",5),
 ("Gestió de l’aigua",6);
+
+insert into ocupacions(nom, cicle) values
+("Personal tècnic instal·lador-reparador d’equips informàtics",1),
+("Personal auxiliar administratiu",2),
+("Electronicistes de vehicles",3),
+("Mecànic de manteniment",4),
+("Personal ajustador operari de màquines eina",5),
+("Personal supervisor de sistemes",6);
