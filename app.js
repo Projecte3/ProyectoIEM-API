@@ -38,7 +38,11 @@ async function set_record(req, res) {
     // TODO: Mirar de enviar el tiempo que ha tardado
     var temps_emprat = 30;
 
-    var puntuacio = ((items_correctes * 10) - (items_incorrectes * 5) / temps_emprat);
+    var puntuacio = ((items_correctes * 100) - (items_incorrectes * 50) / temps_emprat);
+    
+    if (puntuacio < 0) {
+      puntuacio = 0;
+    }
 
     await queryDatabase(`insert into ranking(nom_jugador, cicle, puntuacio, temps_emprat,  items_correctes, items_incorrectes) values ` +
       `("${nom_jugador}","${cicle}",${puntuacio},${temps_emprat},${items_correctes},${items_incorrectes})`);
@@ -121,15 +125,37 @@ async function get_cicles(req, res) {
   res.end(JSON.stringify(result))
 }
 
+// get_ranking endpoint
+app.post('/get_totems', get_totems)
+async function get_totems(req, res) {
+  let receivedPOST = await post.getPostObject(req)
+  let result = { status: "KO", result: "Unkown type" }
+
+  if (receivedPOST) {
+    var cicleNom = receivedPOST.cicleNom;
+    
+    var cicleID = await queryDatabase(`select id from cicles where nom = '${cicleNom}';`)
+    var totems = await queryDatabase(`select * from ocupacions where cicle = ${cicleID[0].id};`)
+
+    result = {
+      status: "OK",
+      result: totems
+    }
+  }
+
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify(result))
+}
+
 // Perform a query to the database
 function queryDatabase(query) {
 
   return new Promise((resolve, reject) => {
     var connection = mysql.createConnection({
-      host: "containers-us-west-67.railway.app" || "localhost",
-      port: 5891 || 3306,
+      host: "containers-us-west-1.railway.app" || "localhost",
+      port: 6258 || 3306,
       user: "root" || "root",
-      password: "k5oRpIJBMJvSEZjFcvDO" || "root",
+      password: "1IHDj6ijcbplAgvxYIIy" || "root",
       database: "railway" || "proyectoiem"
     });
 
