@@ -17,7 +17,7 @@ create table if not exists cicles (
 
 create table if not exists ocupacions (
 	id integer primary key auto_increment,
-    nom varchar(100),
+    nom varchar(400),
     cicle integer,
     foreign key (cicle) references cicles(id)
 );
