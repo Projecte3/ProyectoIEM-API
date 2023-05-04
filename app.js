@@ -84,8 +84,8 @@ async function get_ranking(req, res) {
 }
 
 // get_ranking_all endpoint
-app.post('/get_ranking_all', get_ranking)
-async function get_ranking(req, res) {
+app.post('/get_ranking_all', get_ranking_all)
+async function get_ranking_all(req, res) {
   let receivedPOST = await post.getPostObject(req)
   let result = { status: "KO", result: "Unkown type" }
 
