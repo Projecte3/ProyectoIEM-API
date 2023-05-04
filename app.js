@@ -83,6 +83,27 @@ async function get_ranking(req, res) {
   res.end(JSON.stringify(result))
 }
 
+// get_ranking_all endpoint
+app.post('/get_ranking_all', get_ranking)
+async function get_ranking(req, res) {
+  let receivedPOST = await post.getPostObject(req)
+  let result = { status: "KO", result: "Unkown type" }
+
+  if (receivedPOST) {
+    
+
+    var ranking = await queryDatabase(`select * from ranking order by puntuacio desc;`)
+
+    result = {
+      status: "OK",
+      result: ranking
+    }
+  }
+
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify(result))
+}
+
 // get_ranking endpoint
 app.post('/get_families', get_families)
 async function get_families(req, res) {
