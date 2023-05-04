@@ -174,7 +174,7 @@ async function get_totems(req, res) {
   res.end(JSON.stringify(result))
 }
 
-app.post("/ocultar_jugador",)
+app.post("/ocultar_jugador",ocultar_jugador)
 async function ocultar_jugador(req, res) {
   let receivedPOST = await post.getPostObject(req)
   let result = { status: "KO", result: "Unkown type" }
