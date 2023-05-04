@@ -29,5 +29,8 @@ create table if not exists ranking (
     puntuacio float,
     temps_emprat double,
     items_correctes integer,
-    items_incorrectes integer
+    items_incorrectes integer,
+    ip_origen varchar(100),
+    dispositiu varchar(100),
+    ocult boolean
 );

@@ -29,6 +29,7 @@ app.post('/set_record', set_record)
 async function set_record(req, res) {
   let receivedPOST = await post.getPostObject(req)
   let result = { status: "KO", result: "Unkown type" }
+  console.log("set_record: "+JSON.stringify(receivedPOST))
 
   if (receivedPOST) {
     var nom_jugador = receivedPOST.nom_jugador;
@@ -44,8 +45,8 @@ async function set_record(req, res) {
       puntuacio = 0;
     }
 
-    await queryDatabase(`insert into ranking(nom_jugador, cicle, puntuacio, temps_emprat,  items_correctes, items_incorrectes) values ` +
-      `("${nom_jugador}","${cicle}",${puntuacio},${temps_emprat},${items_correctes},${items_incorrectes})`);
+    await queryDatabase(`insert into ranking(nom_jugador, cicle, puntuacio, temps_emprat,  items_correctes, items_incorrectes, ocult) values ` +
+      `("${nom_jugador}","${cicle}",${puntuacio},${temps_emprat},${items_correctes},${items_incorrectes}, 0)`);
 
     result = {
       status: "OK",
@@ -62,6 +63,7 @@ app.post('/get_ranking', get_ranking)
 async function get_ranking(req, res) {
   let receivedPOST = await post.getPostObject(req)
   let result = { status: "KO", result: "Unkown type" }
+  console.log("get_ranking: "+JSON.stringify(receivedPOST))
 
   if (receivedPOST) {
     var element_inici = receivedPOST.element_inici;
@@ -88,6 +90,7 @@ app.post('/get_ranking_all', get_ranking_all)
 async function get_ranking_all(req, res) {
   let receivedPOST = await post.getPostObject(req)
   let result = { status: "KO", result: "Unkown type" }
+  console.log("get_ranking_all: "+JSON.stringify(receivedPOST))
 
   if (receivedPOST) {
     
@@ -109,6 +112,7 @@ app.post('/get_families', get_families)
 async function get_families(req, res) {
   let receivedPOST = await post.getPostObject(req)
   let result = { status: "KO", result: "Unkown type" }
+  console.log("get_families: "+JSON.stringify(receivedPOST))
 
   if (receivedPOST) {
 
@@ -129,6 +133,7 @@ app.post('/get_cicles', get_cicles)
 async function get_cicles(req, res) {
   let receivedPOST = await post.getPostObject(req)
   let result = { status: "KO", result: "Unkown type" }
+  console.log("get_cicles: "+JSON.stringify(receivedPOST))
 
   if (receivedPOST) {
     var familiaNom = receivedPOST.familiaNom;
@@ -151,6 +156,7 @@ app.post('/get_totems', get_totems)
 async function get_totems(req, res) {
   let receivedPOST = await post.getPostObject(req)
   let result = { status: "KO", result: "Unkown type" }
+  console.log("get_totems: "+JSON.stringify(receivedPOST))
 
   if (receivedPOST) {
     var cicleNom = receivedPOST.cicleNom;
@@ -161,6 +167,27 @@ async function get_totems(req, res) {
     result = {
       status: "OK",
       result: totems
+    }
+  }
+
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify(result))
+}
+
+app.post("/ocultar_jugador",)
+async function ocultar_jugador(req, res) {
+  let receivedPOST = await post.getPostObject(req)
+  let result = { status: "KO", result: "Unkown type" }
+  console.log("ocultar_jugador: "+JSON.stringify(receivedPOST))
+
+  if (receivedPOST) {
+    var ip = receivedPOST.ip
+
+    await queryDatabase(`update ranking set ocult = true where ip_origen = '${ip}';`)
+
+    result = {
+      status: "OK",
+      result: "Jugador ocultat correctament"
     }
   }
 
