@@ -172,9 +172,9 @@ async function get_totems(req, res) {
   if (receivedPOST) {
     var cicleNom = receivedPOST.cicleNom;
     
-    var cicleID = await queryDatabase(`select id from cicles where nom = '${cicleNom}';`)
+    var cicleID = await queryDatabase(`select id from cicles where nom = "${cicleNom}";`)
     var totemsBuenos = await queryDatabase(`select * from ocupacions where cicle = ${cicleID[0].id};`)
-    var cicleMalo = await queryDatabase(`select nom,id from cicles where nom != '${cicleNom}'`)
+    var cicleMalo = await queryDatabase(`select nom,id from cicles where nom != "${cicleNom}"`)
     var totemsMalos = await queryDatabase(`select * from ocupacions where cicle = ${cicleMalo[0].id};`)
 
 

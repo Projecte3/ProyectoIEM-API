@@ -15,7 +15,7 @@ class Obj {
         console.log(`Listening for WebSocket queries`)
 
         this.llistaJugadors = new Map() // Map de los jugadores con sus ciclos
-        this.llistaTotems
+        this.llistaTotems = new Map() // Map de los totems
 
         /* Cuando se conecta un cliente, se activa el evento connection, recibe un objeto ws en una funcion anónima 
         y esta función llama a la función newConnection*/
@@ -56,7 +56,7 @@ class Obj {
     // Send clientsIds to everyone connected with websockets
     sendClients() {
         var clients = []
-        this.socketsClients.forEach((value, key) => {
+        this.socketsClients.forEach((value) => {
             clients.push(value.id)
         })
         /*
@@ -116,10 +116,35 @@ class Obj {
                 this.llistaJugadors.forEach(function(valor, clave) {
                     console.log(clave, valor);})
 
-                
+                this.generateTotems(JSonInfo.cicle)
+
+                this.llistaTotems.forEach(function(valor, clave) {
+                    console.log(clave, valor);})
+
+                var TotemsJSON = {
+                    totemsServer: this.llistaTotems
+                }
+
+                this.broadcast(TotemsJSON)
                 break;
             
         }
+    }
+
+    async generateTotems(cicle){
+
+        var cicleID = await queryDatabase(`select id from cicles where nom = "${cicle}";`)
+        var totemsBuenos = await queryDatabase(`select nom from ocupacions where cicle = ${cicleID[0].id};`)
+        var cicleMalo = await queryDatabase(`select nom,id from cicles where nom != "${cicle}"`)
+        var totemsMalos = await queryDatabase(`select nom from ocupacions where cicle = ${cicleMalo[0].id};`)
+    
+        console.log("cicleID",cicleID)
+        console.log("totemsBuenos",totemsBuenos.toString())
+        console.log("cicleMalo",cicleMalo[0].nom)
+        console.log("totemsMalos",totemsMalos.toString())
+
+        this.llistaTotems.set(cicle,totemsBuenos)
+        this.llistaTotems.set(cicleMalo[0].nom,totemsMalos)
     }
 }
 
@@ -127,6 +152,7 @@ async function saveConnection(ip_usuario) {
     // Save the connection to the connections table in the database
     await queryDatabase(`INSERT INTO connexions (ip_origen, hora_conexion) VALUES ('${ip_usuario}', now());`);
   }
+
 
 module.exports = Obj
 
