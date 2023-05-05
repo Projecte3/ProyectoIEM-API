@@ -1,18 +1,10 @@
 const express = require('express')
-const fs = require('fs/promises')
-const url = require('url')
 const post = require('./post.js')
-var mysql = require('mysql2');
 const queryDatabase = require('./db.js')
 
 const webSockets = require('./appWS.js')
 
 var websocket = new webSockets();
-
-// Wait 'ms' milliseconds
-function wait(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
 
 // Start HTTP server
 const app = express()
