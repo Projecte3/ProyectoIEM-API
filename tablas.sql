@@ -34,3 +34,9 @@ create table if not exists ranking (
     dispositiu varchar(100),
     ocult boolean
 );
+
+create table if not exists connexions (
+    id integer primary key auto_increment,
+    ip_origen varchar(100),
+    hora_conexion timestamp
+);

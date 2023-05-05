@@ -3,6 +3,11 @@ const fs = require('fs/promises')
 const url = require('url')
 const post = require('./post.js')
 var mysql = require('mysql2');
+const queryDatabase = require('./db.js')
+
+const webSockets = require('./appWS.js')
+
+var websocket = new webSockets();
 
 // Wait 'ms' milliseconds
 function wait(ms) {
@@ -15,6 +20,8 @@ const app = express()
 // Set port number
 const port = process.env.PORT || 3000
 
+
+
 // Publish static files from 'public' folder
 app.use(express.static('public'))
 
@@ -22,6 +29,18 @@ app.use(express.static('public'))
 const httpServer = app.listen(port, appListen)
 function appListen() {
   console.log(`Listening for HTTP queries on: http://localhost:${port}`)
+}
+
+websocket.init(httpServer) // Start websockets
+
+// Close connections when process is killed
+process.on('SIGTERM', shutDown);
+process.on('SIGINT', shutDown);
+
+function shutDown() {
+  console.log('Received kill signal, shutting down gracefully');
+  websocket.end()
+  process.exit(0);
 }
 
 // set_record endpoint
@@ -162,11 +181,23 @@ async function get_totems(req, res) {
     var cicleNom = receivedPOST.cicleNom;
     
     var cicleID = await queryDatabase(`select id from cicles where nom = '${cicleNom}';`)
-    var totems = await queryDatabase(`select * from ocupacions where cicle = ${cicleID[0].id};`)
+    var totemsBuenos = await queryDatabase(`select * from ocupacions where cicle = ${cicleID[0].id};`)
+    var cicleMalo = await queryDatabase(`select nom,id from cicles where nom != '${cicleNom}'`)
+    var totemsMalos = await queryDatabase(`select * from ocupacions where cicle = ${cicleMalo[0].id};`)
+
+
+    var JSonTotems = {
+      totemsGenerados: {
+        buenos: {cicleNom: cicleNom,
+          totems: totemsBuenos},
+        malos: {cicleNom: cicleMalo[0].nom,
+                totems: totemsMalos}
+      }
+    }
 
     result = {
       status: "OK",
-      result: totems
+      result: JSonTotems
     }
   }
 
@@ -195,23 +226,5 @@ async function ocultar_jugador(req, res) {
   res.end(JSON.stringify(result))
 }
 
-// Perform a query to the database
-function queryDatabase(query) {
 
-  return new Promise((resolve, reject) => {
-    var connection = mysql.createConnection({
-      host: process.env.MYSQLHOST || "localhost",
-      port: process.env.MYSQLPORT || 3306,
-      user: process.env.MYSQLUSER || "root",
-      password: process.env.MYSQLPASSWORD || "root",
-      database: process.env.MYSQLDATABASE || "proyectoiem"
-    });
 
-    connection.query(query, (error, results) => {
-      if (error) reject(error);
-      resolve(results)
-    });
-
-    connection.end();
-  })
-}
