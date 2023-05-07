@@ -47,8 +47,7 @@ async function set_record(req, res) {
     var cicle = receivedPOST.cicle;
     var items_correctes = receivedPOST.items_correctes;
     var items_incorrectes = receivedPOST.items_incorrectes;
-    // TODO: Mirar de enviar el tiempo que ha tardado
-    var temps_emprat = 30;
+    var temps_emprat = receivedPOST.temps_emprat;
 
     var puntuacio = ((items_correctes * 100) - (items_incorrectes * 50) / temps_emprat);
     

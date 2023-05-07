@@ -4,11 +4,11 @@ module.exports = function queryDatabase(query) {
 
   return new Promise((resolve, reject) => {
     var connection = mysql.createConnection({
-      host: process.env.MYSQLHOST || "localhost",
-      port: process.env.MYSQLPORT || 3306,
-      user: process.env.MYSQLUSER || "root",
-      password: process.env.MYSQLPASSWORD || "root",
-      database: process.env.MYSQLDATABASE || "proyectoiem"
+      host: "containers-us-west-28.railway.app" || "localhost",
+      port: 7019 || 3306,
+      user: "root" || "root",
+      password: "nDvmEAmKCuWGycKGefhI" || "root",
+      database: "railway" || "proyectoiem"
     });
 
     connection.query(query, (error, results) => {
