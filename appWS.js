@@ -14,7 +14,7 @@ class Obj {
         this.socketsClients = new Map() //Map de clientes conectados. 
         console.log(`Listening for WebSocket queries`)
 
-        this.llistaJugadors = new Map() // Map de los jugadores con sus ciclos
+        this.llistaJugadors = [] // Array de los jugadores con sus ciclos
         this.llistaTotems = new Map() // Map de los totems
 
         /* Cuando se conecta un cliente, se activa el evento connection, recibe un objeto ws en una funcion anónima 
@@ -69,9 +69,6 @@ class Obj {
         })
         */
 
-        if (clients.length == 1) {
-
-        }
     }
 
     // Send a message to all websocket clients
@@ -97,7 +94,7 @@ class Obj {
 
 
     // A message is received from a websocket client, le pasa conexción del cliente, la id y el mensaje
-    newMessage(ws, id, bufferedMessage) {
+    async newMessage(ws, id, bufferedMessage) {
         var messageAsString = bufferedMessage.toString()
         var messageAsObject = {}
 
@@ -112,20 +109,45 @@ class Obj {
             
             case "info_usuari": // Este mensaje se recibe cada vez que se conecta un usuario (en el cliente se envia directamente)
                 var JSonInfo = messageAsObject.message
-                this.llistaJugadors.set(JSonInfo.nom_jugador,JSonInfo.cicle)
+                this.llistaJugadors.push(JSonInfo.nom_jugador)
+                /*
                 this.llistaJugadors.forEach(function(valor, clave) {
                     console.log(clave, valor);})
+                */
 
-                this.generateTotems(JSonInfo.cicle)
+                await this.generateTotems(JSonInfo.cicle)
 
+                /*
                 this.llistaTotems.forEach(function(valor, clave) {
-                    console.log(clave, valor);})
+                    console.log(clave,": ", valor);})
+                */
+               
+                var llistaTotemObj = Object.fromEntries(this.llistaTotems.entries());
+
 
                 var TotemsJSON = {
-                    totemsServer: this.llistaTotems
+                    totemsServer: llistaTotemObj
                 }
 
+
                 this.broadcast(TotemsJSON)
+                break;
+
+            case "desconectar":
+                var message = messageAsObject.message
+                var nom_jugador = message.nom_jugador;
+
+
+
+                this.llistaJugadors = this.llistaJugadors.filter(item => item !== nom_jugador)
+
+                if (this.llistaJugadors.length === 0) {
+                    this.llistaTotems.clear();
+                }
+
+
+                ws.close();
+
                 break;
             
         }
@@ -135,22 +157,47 @@ class Obj {
 
         var cicleID = await queryDatabase(`select id from cicles where nom = "${cicle}";`)
         var totemsBuenos = await queryDatabase(`select nom from ocupacions where cicle = ${cicleID[0].id};`)
-        var cicleMalo = await queryDatabase(`select nom,id from cicles where nom != "${cicle}"`)
+        var cicleMalo = await queryDatabase(`select nom,id from cicles where nom != "${cicle}" order by rand();`)
         var totemsMalos = await queryDatabase(`select nom from ocupacions where cicle = ${cicleMalo[0].id};`)
-    
-        console.log("cicleID",cicleID)
-        console.log("totemsBuenos",totemsBuenos.toString())
-        console.log("cicleMalo",cicleMalo[0].nom)
-        console.log("totemsMalos",totemsMalos.toString())
 
-        this.llistaTotems.set(cicle,totemsBuenos)
-        this.llistaTotems.set(cicleMalo[0].nom,totemsMalos)
+        while (this.llistaTotems.has(cicleMalo[0].nom)) {
+            cicleMalo = await queryDatabase(`select nom,id from cicles where nom != "${cicle}" order by rand();`)
+        }
+
+        var totemsBuenosArray = [];
+        var totemsMalosArray = [];
+
+        var cnt = 0;
+
+        totemsBuenos.forEach(element => {
+            if (cnt < 5) {
+                totemsBuenosArray.push(element.nom)
+                cnt++;
+            }
+        });
+
+        cnt = 0;
+
+        totemsMalos.forEach(element => {
+            if (cnt < 5) {
+                totemsMalosArray.push(element.nom)
+                cnt++;
+            }
+        });
+
+        return new Promise((resolve, reject) => {
+            this.llistaTotems.set(cicle,totemsBuenosArray);
+            this.llistaTotems.set(cicleMalo[0].nom,totemsMalosArray);
+            resolve(this.llistaTotems);
+        });
+
     }
 }
 
 async function saveConnection(ip_usuario) {
     // Save the connection to the connections table in the database
-    await queryDatabase(`INSERT INTO connexions (ip_origen, hora_conexion) VALUES ('${ip_usuario}', now());`);
+    var ip_usuarioTrim = ip_usuario.split(':')[3];
+    await queryDatabase(`INSERT INTO connexions (ip_origen, hora_conexion) VALUES ('${ip_usuarioTrim}', now());`);
   }
 
 

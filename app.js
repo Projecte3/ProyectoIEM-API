@@ -40,6 +40,7 @@ app.post('/set_record', set_record)
 async function set_record(req, res) {
   let receivedPOST = await post.getPostObject(req)
   let result = { status: "KO", result: "Unkown type" }
+  let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
   console.log("set_record: "+JSON.stringify(receivedPOST))
 
   if (receivedPOST) {
@@ -48,15 +49,16 @@ async function set_record(req, res) {
     var items_correctes = receivedPOST.items_correctes;
     var items_incorrectes = receivedPOST.items_incorrectes;
     var temps_emprat = receivedPOST.temps_emprat;
+    var dispositiu = receivedPOST.dispositiu;
 
-    var puntuacio = ((items_correctes * 100) - (items_incorrectes * 50) / temps_emprat);
+    var puntuacio = (items_correctes / items_incorrectes) * ((items_correctes + items_incorrectes)/temps_emprat) * 1000;
     
     if (puntuacio < 0) {
       puntuacio = 0;
     }
 
-    await queryDatabase(`insert into ranking(nom_jugador, cicle, puntuacio, temps_emprat,  items_correctes, items_incorrectes, ocult) values ` +
-      `("${nom_jugador}","${cicle}",${puntuacio},${temps_emprat},${items_correctes},${items_incorrectes}, 0)`);
+    await queryDatabase(`insert into ranking(nom_jugador, cicle, puntuacio, temps_emprat,  items_correctes, items_incorrectes, ocult, ip_origen, dispositiu) values ` +
+      `("${nom_jugador}","${cicle}",${puntuacio},${temps_emprat},${items_correctes},${items_incorrectes}, 0, '${ip}', '${dispositiu}')`);
 
     result = {
       status: "OK",
