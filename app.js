@@ -205,7 +205,7 @@ async function ocultar_jugador(req, res) {
   console.log("ocultar_jugador: "+JSON.stringify(receivedPOST))
 
   if (receivedPOST) {
-    var ip = receivedPOST.ip
+    var ip = receivedPOST.ip.split('/')[1]
 
     await queryDatabase(`update ranking set ocult = true where ip_origen = '${ip}';`)
 
