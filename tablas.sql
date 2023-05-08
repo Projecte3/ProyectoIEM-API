@@ -38,5 +38,6 @@ create table if not exists ranking (
 create table if not exists connexions (
     id integer primary key auto_increment,
     ip_origen varchar(100),
-    hora_conexion timestamp
+    hora_conexion timestamp,
+    tipus_connexio varchar(100)
 );

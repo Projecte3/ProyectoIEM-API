@@ -19,7 +19,7 @@ class Obj {
 
         /* Cuando se conecta un cliente, se activa el evento connection, recibe un objeto ws en una funcion anónima 
         y esta función llama a la función newConnection*/
-        this.websocketServer.on('connection', (ws) => { this.newConnection(ws) })
+        this.websocketServer.on('connection', (ws,req) => { this.newConnection(ws,req) })
     }
 
     end() {
@@ -27,23 +27,26 @@ class Obj {
     }
 
     // A websocket client connects
-    newConnection(ws) {
+    newConnection(ws,req) {
 
         console.log("Client connected")
 
         // Add client to the clients list
         const id = uuidv4()
         const color = Math.floor(Math.random() * 360)
-        const metadata = { id, color }
+
+        let ip_usuario = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+
+        const metadata = { id, color, ip_usuario }
         this.socketsClients.set(ws, metadata) //Almacena la conexción del cliente y la data. 
 
 
         // Send clients list to everyone
         this.sendClients()
 
-        let ip_usuario = ws._socket.remoteAddress;
+        
 
-        saveConnection(ip_usuario)
+        saveConnection(ip_usuario,'Connexió')
 
         //Cuando el cliente se desconecta, activa el evento close, y borra al cliente del map. 
         ws.on("close", () => { this.socketsClients.delete(ws) })
@@ -145,6 +148,15 @@ class Obj {
                     this.llistaTotems.clear();
                 }
 
+                var ip_usuario = ws._socket.remoteAddress;
+
+                this.websocketServer.clients.forEach((client) => {
+                    if (this.socketsClients.get(client).id == id) {
+                        ip_usuario = this.socketsClients.get(client).ip_usuario
+                    }
+                })
+
+                saveConnection(ip_usuario, 'Desconnexió')
 
                 ws.close();
 
@@ -194,10 +206,9 @@ class Obj {
     }
 }
 
-async function saveConnection(ip_usuario) {
-    // Save the connection to the connections table in the database
-    var ip_usuarioTrim = ip_usuario.split(':')[3];
-    await queryDatabase(`INSERT INTO connexions (ip_origen, hora_conexion) VALUES ('${ip_usuarioTrim}', now());`);
+async function saveConnection(ip_usuario, tipus_connexio) {
+    //var ip_usuarioTrim = ip_usuario.split(':')[3];
+    await queryDatabase(`INSERT INTO connexions (ip_origen, hora_conexion, tipus_connexio) VALUES ('${ip_usuario}', now(), '${tipus_connexio}');`);
   }
 
 
