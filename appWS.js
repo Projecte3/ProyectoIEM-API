@@ -9,17 +9,21 @@ class Obj {
 
 
     init(httpServer) {
+
+        this.mapSizeX = 500;
+        this.mapSizeY = 500;
+
         // Run WebSocket server
         this.websocketServer = new WebSocket.Server({ server: httpServer })
         this.socketsClients = new Map() //Map de clientes conectados. 
         console.log(`Listening for WebSocket queries`)
 
-        this.llistaJugadors = [] // Array de los jugadores con sus ciclos
+        this.llistaJugadors = new Map() // Map de los jugadores con sus ciclos
         this.llistaTotems = new Map() // Map de los totems
 
         /* Cuando se conecta un cliente, se activa el evento connection, recibe un objeto ws en una funcion anónima 
         y esta función llama a la función newConnection*/
-        this.websocketServer.on('connection', (ws,req) => { this.newConnection(ws,req) })
+        this.websocketServer.on('connection', (ws, req) => { this.newConnection(ws, req) })
     }
 
     end() {
@@ -27,7 +31,7 @@ class Obj {
     }
 
     // A websocket client connects
-    newConnection(ws,req) {
+    newConnection(ws, req) {
 
         console.log("Client connected")
 
@@ -44,9 +48,9 @@ class Obj {
         // Send clients list to everyone
         this.sendClients()
 
-        
 
-        saveConnection(ip_usuario,'Connexió')
+
+        saveConnection(ip_usuario, 'Connexió')
 
         //Cuando el cliente se desconecta, activa el evento close, y borra al cliente del map. 
         ws.on("close", () => { this.socketsClients.delete(ws) })
@@ -109,14 +113,17 @@ class Obj {
                 var JSonToSendClient = { type: "test", message: messageAsObject.message }
                 ws.send(JSON.stringify(JSonToSendClient))
                 break;
-            
+
             case "info_usuari": // Este mensaje se recibe cada vez que se conecta un usuario (en el cliente se envia directamente)
                 var JSonInfo = messageAsObject.message
-                this.llistaJugadors.push(JSonInfo.nom_jugador)
-                /*
-                this.llistaJugadors.forEach(function(valor, clave) {
-                    console.log(clave, valor);})
-                */
+
+                // TODO: Cambiar las coordenadas por el centro del mapa
+                this.llistaJugadors.set(JSonInfo.nom_jugador, [this.mapSizeX / 2, this.mapSizeY / 2]) // Se añade al mapa el jugador como clave y un array con las coordenadas x,y 
+
+                this.llistaJugadors.forEach(function (valor, clave) {
+                    console.log(clave, valor);
+                })
+
 
                 await this.generateTotems(JSonInfo.cicle)
 
@@ -124,8 +131,17 @@ class Obj {
                 this.llistaTotems.forEach(function(valor, clave) {
                     console.log(clave,": ", valor);})
                 */
-               
-                var llistaTotemObj = Object.fromEntries(this.llistaTotems.entries());
+
+                var mapaTemp = new Map();
+
+                this.llistaTotems.forEach(function (valor, clave) {
+                    console.log(clave, valor);
+                    mapaTemp.set(clave,Object.fromEntries(valor.entries()))
+                })
+        
+                
+
+                var llistaTotemObj = Object.fromEntries(mapaTemp.entries());
 
 
                 var TotemsJSON = {
@@ -142,9 +158,9 @@ class Obj {
 
 
 
-                this.llistaJugadors = this.llistaJugadors.filter(item => item !== nom_jugador)
+                this.llistaJugadors.delete(nom_jugador)
 
-                if (this.llistaJugadors.length === 0) {
+                if (this.llistaJugadors.size === 0) {
                     this.llistaTotems.clear();
                 }
 
@@ -156,16 +172,26 @@ class Obj {
                     }
                 })
 
+                this.llistaJugadors.forEach(function (valor, clave) {
+                    console.log(clave, valor);
+                })
+
                 saveConnection(ip_usuario, 'Desconnexió')
 
                 ws.close();
 
                 break;
-            
+
+            case "remove_totem":
+                var messageJSON = messageAsObject.message
+
+
+                break;
+
         }
     }
 
-    async generateTotems(cicle){
+    async generateTotems(cicle) {
 
         var cicleID = await queryDatabase(`select id from cicles where nom = "${cicle}";`)
         var totemsBuenos = await queryDatabase(`select nom from ocupacions where cicle = ${cicleID[0].id};`)
@@ -176,14 +202,18 @@ class Obj {
             cicleMalo = await queryDatabase(`select nom,id from cicles where nom != "${cicle}" order by rand();`)
         }
 
-        var totemsBuenosArray = [];
-        var totemsMalosArray = [];
+        var totemsBuenosMap = new Map();
+        var totemsMalosMap = new Map();
 
         var cnt = 0;
+        var x = 0;
+        var y = 0;
 
         totemsBuenos.forEach(element => {
             if (cnt < 5) {
-                totemsBuenosArray.push(element.nom)
+                x = getRandomIntInclusive(0, this.mapSizeX);
+                y = getRandomIntInclusive(0, this.mapSizeY);
+                totemsBuenosMap.set(element.nom, [x,y])
                 cnt++;
             }
         });
@@ -192,14 +222,25 @@ class Obj {
 
         totemsMalos.forEach(element => {
             if (cnt < 5) {
-                totemsMalosArray.push(element.nom)
+                x = getRandomIntInclusive(0, this.mapSizeX);
+                y = getRandomIntInclusive(0, this.mapSizeY);
+                totemsMalosMap.set(element.nom, [x,y])
                 cnt++;
             }
         });
 
+
+
         return new Promise((resolve, reject) => {
-            this.llistaTotems.set(cicle,totemsBuenosArray);
-            this.llistaTotems.set(cicleMalo[0].nom,totemsMalosArray);
+            this.llistaTotems.set(cicle, totemsBuenosMap);
+            this.llistaTotems.set(cicleMalo[0].nom, totemsMalosMap);
+            totemsBuenosMap.forEach(function (valor, clave) {
+                console.log(clave, valor);
+            })
+    
+            totemsMalosMap.forEach(function (valor, clave) {
+                console.log(clave, valor);
+            })
             resolve(this.llistaTotems);
         });
 
@@ -209,7 +250,12 @@ class Obj {
 async function saveConnection(ip_usuario, tipus_connexio) {
     //var ip_usuarioTrim = ip_usuario.split(':')[3];
     await queryDatabase(`INSERT INTO connexions (ip_origen, hora_conexion, tipus_connexio) VALUES ('${ip_usuario}', now(), '${tipus_connexio}');`);
-  }
+}
+
+function getRandomIntInclusive(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 
 
 module.exports = Obj
