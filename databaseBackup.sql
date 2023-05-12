@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.32, for Win64 (x86_64)
 --
--- Host: containers-us-west-39.railway.app    Database: railway
+-- Host: containers-us-west-28.railway.app    Database: railway
 -- ------------------------------------------------------
 -- Server version	8.0.33
 
@@ -53,8 +53,9 @@ CREATE TABLE `connexions` (
   `id` int NOT NULL AUTO_INCREMENT,
   `ip_origen` varchar(100) DEFAULT NULL,
   `hora_conexion` timestamp NULL DEFAULT NULL,
+  `tipus_connexio` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -63,7 +64,7 @@ CREATE TABLE `connexions` (
 
 LOCK TABLES `connexions` WRITE;
 /*!40000 ALTER TABLE `connexions` DISABLE KEYS */;
-INSERT INTO `connexions` VALUES (2,'::ffff:192.168.0.3','2023-05-05 15:44:21'),(3,'::ffff:192.168.0.2','2023-05-05 15:46:08');
+INSERT INTO `connexions` VALUES (18,'85.192.71.100','2023-05-09 13:32:11','Connexió'),(19,'85.192.71.100','2023-05-09 13:32:35','Connexió'),(20,'85.192.71.100','2023-05-09 13:32:57','Desconnexió'),(21,'85.192.71.100','2023-05-09 13:33:17','Desconnexió'),(22,'85.192.71.100','2023-05-09 15:23:09','Connexió'),(23,'85.192.71.100','2023-05-09 15:23:13','Connexió'),(24,'85.192.71.100','2023-05-09 15:23:17','Connexió'),(25,'85.192.71.100','2023-05-09 15:23:22','Connexió'),(26,'85.192.71.100','2023-05-09 15:25:12','Desconnexió'),(27,'85.192.71.100','2023-05-09 15:25:16','Desconnexió'),(28,'85.192.71.100','2023-05-09 15:25:50','Desconnexió'),(29,'85.192.71.100','2023-05-09 17:09:32','Connexió');
 /*!40000 ALTER TABLE `connexions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -137,7 +138,7 @@ CREATE TABLE `ranking` (
   `dispositiu` varchar(100) DEFAULT NULL,
   `ocult` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -146,7 +147,7 @@ CREATE TABLE `ranking` (
 
 LOCK TABLES `ranking` WRITE;
 /*!40000 ALTER TABLE `ranking` DISABLE KEYS */;
-INSERT INTO `ranking` VALUES (1,'Edu','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'1234',NULL,1),(2,'Isma','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'5555',NULL,0),(3,'Marc','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'9999',NULL,0),(4,'Marc','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'9999',NULL,0),(5,'Marc','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'9999',NULL,0),(6,'Marc','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'9999',NULL,0),(7,'Marc','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'9999',NULL,0),(8,'Marc','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'9999',NULL,0),(9,'Isma','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'5555',NULL,0),(10,'Isma','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'5555',NULL,0),(11,'Isma','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'5555',NULL,0),(12,'Isma','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'5555',NULL,0),(13,'Isma','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'5555',NULL,0),(14,'Isma','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'5555',NULL,0),(15,'Isma','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'5555',NULL,0),(16,'Edu','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'1234',NULL,1),(17,'Edu','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'1234',NULL,1),(18,'Edu','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'1234',NULL,1),(19,'Edu','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'1234',NULL,1),(20,'Edu','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'1234',NULL,1),(21,'Edu','Desenvolupament d\'Aplicacions Multiplataforma',996.667,30,10,2,'1234',NULL,1);
+INSERT INTO `ranking` VALUES (49,'Boo2','Administració i finances',499.681,26.683681,5,3,'85.192.71.100','Desktop',1),(50,'Bullet Bill2','Sistemes microinformàtics i xarxes',122.269,92.009926,5,4,'85.192.71.100','Desktop',1),(51,'Thwomp1','Sistemes microinformàtics i xarxes',564.123,31.021606,5,2,'85.192.71.100','Desktop',1),(52,'Bowser0','Sistemes microinformàtics i xarxes',217.764,45.921238,5,5,'85.192.71.100','Desktop',1),(53,'Pauline1','Sistemes microinformàtics i xarxes',1012.36,9.877872,5,5,'185.124.30.8','Android',0),(54,'Whomp0','Sistemes microinformàtics i xarxes',1087.63,12.259017,5,3,'213.143.48.99','Android',0),(55,'Captain Toad1','Sistemes microinformàtics i xarxes',1024.28,13.017325,5,3,'85.192.71.100','Android',1),(56,'Pauline2','Administració i finances',481.645,36.333828,5,2,'85.192.71.100','Android',1),(57,'Princesa Peach2','Administració i finances',736.259,18.10958,5,3,'213.230.159.12','Desktop',0),(58,'Cappy3','Gestió administrativa',321.649,41.45307,5,3,'85.192.71.100','Desktop',1);
 /*!40000 ALTER TABLE `ranking` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -159,4 +160,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-05-05 18:21:39
+-- Dump completed on 2023-05-09 19:21:50
