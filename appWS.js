@@ -193,6 +193,16 @@ class Obj {
                 this.broadcastTotems();
                 break;
 
+            case "pos_jugador":
+                var jugadorJSON = messageAsObject.message
+                var jugador = jugadorJSON.jugador;
+                var posX = jugadorJSON.pos_x;
+                var posY = jugadorJSON.pos_y;
+
+                
+                
+                break;
+
         }
     }
 
