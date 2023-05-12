@@ -10,8 +10,8 @@ class Obj {
 
     init(httpServer) {
 
-        this.mapSizeX = 500;
-        this.mapSizeY = 500;
+        this.mapSizeX = 3008;
+        this.mapSizeY = 2624;
 
         // Run WebSocket server
         this.websocketServer = new WebSocket.Server({ server: httpServer })
@@ -132,24 +132,7 @@ class Obj {
                     console.log(clave,": ", valor);})
                 */
 
-                var mapaTemp = new Map();
-
-                this.llistaTotems.forEach(function (valor, clave) {
-                    console.log(clave, valor);
-                    mapaTemp.set(clave,Object.fromEntries(valor.entries()))
-                })
-        
-                
-
-                var llistaTotemObj = Object.fromEntries(mapaTemp.entries());
-
-
-                var TotemsJSON = {
-                    totemsServer: llistaTotemObj
-                }
-
-
-                this.broadcast(TotemsJSON)
+                this.broadcastTotems();
                 break;
 
             case "desconectar":
@@ -184,11 +167,55 @@ class Obj {
 
             case "remove_totem":
                 var messageJSON = messageAsObject.message
+                var totem = messageJSON.totem;
 
+                this.llistaTotems.forEach(function (valor, clave) {
+                    console.log(clave, valor);
+                    valor.forEach(function (valor2, clave2) {
+                        console.log(clave2, valor2)
+                        if (clave2 === totem) {
+                            valor.delete(clave2);
+                        }
+                    })
+                })
+
+                var totem_borrado = {
+                    type: "totem_borrado",
+                    totem: totem
+                }
+
+                this.broadcast(totem_borrado)
 
                 break;
 
+            case "llistar_totems":
+
+                this.broadcastTotems();
+                break;
+
         }
+    }
+
+    async broadcastTotems(){
+        var mapaTemp = new Map();
+
+        this.llistaTotems.forEach(function (valor, clave) {
+            console.log(clave, valor);
+            mapaTemp.set(clave, Object.fromEntries(valor.entries()))
+        })
+
+
+
+        var llistaTotemObj = Object.fromEntries(mapaTemp.entries());
+
+
+        var TotemsJSON = {
+            type: "llistaTotems",
+            totemsServer: llistaTotemObj
+        }
+
+
+        this.broadcast(TotemsJSON)
     }
 
     async generateTotems(cicle) {
