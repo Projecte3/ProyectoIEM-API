@@ -66,15 +66,6 @@ class Obj {
         this.socketsClients.forEach((value) => {
             clients.push(value.id)
         })
-        /*
-        this.websocketServer.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                var id = this.socketsClients.get(client).id
-                var messageAsString = JSON.stringify({ type: "clientes conectados", id: id, list: clients, size: clients.length })
-                client.send(messageAsString)
-            }
-        })
-        */
 
     }
 
@@ -107,7 +98,7 @@ class Obj {
 
         try {
             messageAsObject = JSON.parse(messageAsString)
-            console.log(messageAsString);
+            //console.log(messageAsString);
         }
         
         catch (e) { console.log("Could not parse bufferedMessage from WS message") }
@@ -124,17 +115,7 @@ class Obj {
                 // TODO: Cambiar las coordenadas por el centro del mapa
                 this.llistaJugadors.set(JSonInfo.nom_jugador, [this.mapSizeX / 2, this.mapSizeY / 2]) // Se añade al mapa el jugador como clave y un array con las coordenadas x,y 
 
-                this.llistaJugadors.forEach(function (valor, clave) {
-                    console.log(clave, valor);
-                })
-
-
                 await this.generateTotems(JSonInfo.cicle)
-
-                /*
-                this.llistaTotems.forEach(function(valor, clave) {
-                    console.log(clave,": ", valor);})
-                */
 
                 this.broadcastTotems();
                 break;
@@ -159,10 +140,6 @@ class Obj {
                     }
                 })
 
-                this.llistaJugadors.forEach(function (valor, clave) {
-                    console.log(clave, valor);
-                })
-
                 saveConnection(ip_usuario, 'Desconnexió')
 
                 ws.close();
@@ -174,9 +151,7 @@ class Obj {
                 var totem = messageJSON.totem;
 
                 this.llistaTotems.forEach(function (valor, clave) {
-                    console.log(clave, valor);
                     valor.forEach(function (valor2, clave2) {
-                        console.log(clave2, valor2)
                         if (clave2 === totem) {
                             valor.delete(clave2);
                         }
@@ -219,6 +194,8 @@ class Obj {
                 ws.send(JSON.stringify(playerPositionsJSON))
                 break;
 
+                
+
         }
     }
 
@@ -226,7 +203,6 @@ class Obj {
         var mapaTemp = new Map();
 
         this.llistaTotems.forEach(function (valor, clave) {
-            console.log(clave, valor);
             mapaTemp.set(clave, Object.fromEntries(valor.entries()))
         })
 
@@ -287,13 +263,6 @@ class Obj {
         return new Promise((resolve) => {
             this.llistaTotems.set(cicle, totemsBuenosMap);
             this.llistaTotems.set(cicleMalo[0].nom, totemsMalosMap);
-            totemsBuenosMap.forEach(function (valor, clave) {
-                console.log(clave, valor);
-            })
-    
-            totemsMalosMap.forEach(function (valor, clave) {
-                console.log(clave, valor);
-            })
             resolve(this.llistaTotems);
         });
 
