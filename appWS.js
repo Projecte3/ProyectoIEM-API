@@ -204,7 +204,19 @@ class Obj {
                 var posY = jugadorJSON.pos_y;
 
                 
+                this.llistaJugadors.set(jugador,[posX, posY])
                 
+                var jsonObject = {};
+                for (let [key, value] of this.llistaJugadors) {
+                    jsonObject[key] = value;
+                  }
+
+                var playerPositionsJSON = {
+                    type: "player_positions",
+                    message: jsonObject
+                }
+
+                ws.send(JSON.stringify(playerPositionsJSON))
                 break;
 
         }
@@ -272,7 +284,7 @@ class Obj {
 
 
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.llistaTotems.set(cicle, totemsBuenosMap);
             this.llistaTotems.set(cicleMalo[0].nom, totemsMalosMap);
             totemsBuenosMap.forEach(function (valor, clave) {
