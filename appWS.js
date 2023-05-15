@@ -113,7 +113,7 @@ class Obj {
                 var JSonInfo = messageAsObject.message
 
                 // TODO: Cambiar las coordenadas por el centro del mapa
-                this.llistaJugadors.set(JSonInfo.nom_jugador, [this.mapSizeX / 2, this.mapSizeY / 2]) // Se añade al mapa el jugador como clave y un array con las coordenadas x,y 
+                this.llistaJugadors.set(JSonInfo.nom_jugador, [640, 320]) // Se añade al mapa el jugador como clave y un array con las coordenadas x,y 
 
                 await this.generateTotems(JSonInfo.cicle)
 
